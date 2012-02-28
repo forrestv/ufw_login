@@ -68,20 +68,16 @@ public class ufw_login extends Activity
         private final IBinder mBinder = new LocalBinder();
         
         private class AuthTask extends AsyncTask<String, Void, String> {
-            protected String doInBackground(String... x) {
-                SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(WatchService.this);
-                if(sp.getString("password", "").equals("") || sp.getString("username", "").equals(""))
-                    return "Username/password not set yet!";
-                
+            protected String doInBackground(String... x) { // url, ip address, username, password
                 List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
                 nameValuePairs.add(new BasicNameValuePair("compact", "true"));
                 nameValuePairs.add(new BasicNameValuePair("index", "0"));
-                nameValuePairs.add(new BasicNameValuePair("password", sp.getString("password", "")));
+                nameValuePairs.add(new BasicNameValuePair("password", x[3]));
                 nameValuePairs.add(new BasicNameValuePair("pageid", "-1"));
                 nameValuePairs.add(new BasicNameValuePair("passwordLabel", "Password"));
                 nameValuePairs.add(new BasicNameValuePair("cm", "ws32vklm"));
                 nameValuePairs.add(new BasicNameValuePair("registerGuest", "NO"));
-                nameValuePairs.add(new BasicNameValuePair("username", sp.getString("username", "")));
+                nameValuePairs.add(new BasicNameValuePair("username", x[2]));
                 nameValuePairs.add(new BasicNameValuePair("uri", "http://www.google.com/search?client=ubuntu"));
                 nameValuePairs.add(new BasicNameValuePair("reqFrom", "perfigo_frame_login.jsp"));
                 nameValuePairs.add(new BasicNameValuePair("guestUserNameLabel", "Guest ID"));
@@ -117,7 +113,7 @@ public class ufw_login extends Activity
             }
         }
         
-        private boolean on_wifi_before = false;
+        private String auth_started_userpass = null;
         private String status = "just started";
         private RefreshHandler2 mRedrawHandler2 = new RefreshHandler2();
         class RefreshHandler2 extends Handler {
@@ -125,19 +121,29 @@ public class ufw_login extends Activity
             public void handleMessage(Message msg) {
                 this.removeMessages(0);
                 
+                SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(WatchService.this);
+                String username = sp.getString("username", "");
+                String password = sp.getString("password", "");
+                
                 WifiInfo wi = ((WifiManager)getSystemService(WIFI_SERVICE)).getConnectionInfo();
                 boolean on_wifi_now = wi != null && wi.getSSID() != null && wi.getSSID().equals("ufw");
-                if(on_wifi_now && !on_wifi_before) {
-                    status = "On \"ufw\". Attempting authentication...";
-                    String ip = Formatter.formatIpAddress(wi.getIpAddress());
-                    (new WatchService.AuthTask()).execute("https://nac-serv-1.ns.ufl.edu/auth/perfigo_cm_validate.jsp", ip);
-                    (new WatchService.AuthTask()).execute("https://nac-serv-2.ns.ufl.edu/auth/perfigo_cm_validate.jsp", ip);
-                    (new WatchService.AuthTask()).execute("https://nac-serv-3.ns.ufl.edu/auth/perfigo_cm_validate.jsp", ip);
-                    (new WatchService.AuthTask()).execute("https://nac-serv-4.ns.ufl.edu/auth/perfigo_cm_validate.jsp", ip);
+                String ip = Formatter.formatIpAddress(wi.getIpAddress());
+                
+                if(username.equals("") || password.equals("")) {
+                    status = "Username/password not yet set! Open the preferences window by pressing the menu button.";
+                    auth_started_userpass = null;
                 } else if(!on_wifi_now) {
                     status = "Not on \"ufw\".";
+                    auth_started_userpass = null;
+                } else if(auth_started_userpass == null || !auth_started_userpass.equals(username + ":" + password)) {
+                    (new WatchService.AuthTask()).execute("https://nac-serv-1.ns.ufl.edu/auth/perfigo_cm_validate.jsp", ip, username, password);
+                    (new WatchService.AuthTask()).execute("https://nac-serv-2.ns.ufl.edu/auth/perfigo_cm_validate.jsp", ip, username, password);
+                    (new WatchService.AuthTask()).execute("https://nac-serv-3.ns.ufl.edu/auth/perfigo_cm_validate.jsp", ip, username, password);
+                    (new WatchService.AuthTask()).execute("https://nac-serv-4.ns.ufl.edu/auth/perfigo_cm_validate.jsp", ip, username, password);
+                    
+                    status = "On \"ufw\". Attempting authentication...";
+                    auth_started_userpass = username + ":" + password;
                 }
-                on_wifi_before = on_wifi_now;
                 
                 sendMessageDelayed(obtainMessage(0), 1000);
             }
