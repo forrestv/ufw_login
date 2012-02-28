@@ -101,10 +101,20 @@ public class ufw_login extends Activity
                 } catch(IOException e) {
                     return "IOException happened: " + e.getMessage();
                 }
+                
+                String data;
                 try {
-                    return slurp(r.getEntity().getContent());
+                    data = slurp(r.getEntity().getContent());
                 } catch(IOException e) {
                     return "IOException error: " + e.getMessage();
+                }
+                
+                if(data.contains("have been successfully")) {
+                    return "Success!";
+                } else if(data.contains("Invalid username or password")) {
+                    return "Invalid username or password!";
+                } else {
+                    return "Unknown response: " + data;
                 }
             }
             
