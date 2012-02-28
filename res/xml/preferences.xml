@@ -20,7 +20,7 @@
             android:dialogMessage="Provide your password"
             android:inputType="textPassword" />
     </PreferenceCategory>
-    
+<!--
     <PreferenceCategory 
         android:title="Options"
         android:key="second_category">
@@ -31,4 +31,5 @@
             android:title="Display notification icon" 
             android:defaultValue="true" />
     </PreferenceCategory>
+-->
 </PreferenceScreen>
