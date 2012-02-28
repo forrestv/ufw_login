@@ -70,7 +70,16 @@ public class ufw_login extends Activity
         private final IBinder mBinder = new LocalBinder();
         
         private class AuthTask extends AsyncTask<String, Void, String> {
+            private int kill_counter_at_start;
+            private String[] params;
+            
+            protected void onPreExecute() {
+                kill_counter_at_start = kill_counter;
+            }
+            
             protected String doInBackground(String... x) { // url, ip address, username, password
+                this.params = x;
+                
                 List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
                 nameValuePairs.add(new BasicNameValuePair("compact", "true"));
                 nameValuePairs.add(new BasicNameValuePair("index", "0"));
@@ -101,30 +110,42 @@ public class ufw_login extends Activity
                 try {
                     r = c.execute(hp);
                 } catch(IOException e) {
-                    return "IOException happened: " + e.getMessage();
+                    return "Error: IOException: " + e.getMessage();
                 }
                 
                 String data;
                 try {
                     data = slurp(r.getEntity().getContent());
                 } catch(IOException e) {
-                    return "IOException error: " + e.getMessage();
+                    return "Error: IOException " + e.getMessage();
                 }
                 
                 if(data.contains("have been successfully")) {
                     return "Success!";
                 } else if(data.contains("Invalid username or password")) {
-                    return "Invalid username or password!";
+                    return "Fatal: Invalid username or password!";
                 } else {
-                    return "Unknown response: " + data;
+                    return "Fatal: Unknown response: " + data;
                 }
             }
             
             protected void onPostExecute(String result) {
+                if(kill_counter != kill_counter_at_start)
+                    return;
                 WatchService.this.status += "\n" + result;
+                if(result.startsWith("Error")) {
+                    (new Handler()).postDelayed(new Runnable() {
+                      @Override
+                      public void run() {
+                        (new WatchService.AuthTask()).execute(params);
+                      }
+                    }, 1500);
+                }
+
             }
         }
         
+        private int kill_counter = 0;
         private String auth_started_userpass = null;
         private String status = "just started";
         private RefreshHandler2 mRedrawHandler2 = new RefreshHandler2();
@@ -144,17 +165,20 @@ public class ufw_login extends Activity
                 if(username.equals("") || password.equals("")) {
                     status = "Username/password not set! Press the \"Preferences\" button.";
                     auth_started_userpass = null;
+                    kill_counter += 1;
                 } else if(!on_wifi_now) {
                     status = "Not on \"ufw\".";
                     auth_started_userpass = null;
+                    kill_counter += 1;
                 } else if(auth_started_userpass == null || !auth_started_userpass.equals(username + ":" + password)) {
+                    status = "On \"ufw\". Attempting authentication...";
+                    auth_started_userpass = username + ":" + password;
+                    kill_counter += 1;
+                    
                     (new WatchService.AuthTask()).execute("https://nac-serv-1.ns.ufl.edu/auth/perfigo_cm_validate.jsp", ip, username, password);
                     (new WatchService.AuthTask()).execute("https://nac-serv-2.ns.ufl.edu/auth/perfigo_cm_validate.jsp", ip, username, password);
                     (new WatchService.AuthTask()).execute("https://nac-serv-3.ns.ufl.edu/auth/perfigo_cm_validate.jsp", ip, username, password);
                     (new WatchService.AuthTask()).execute("https://nac-serv-4.ns.ufl.edu/auth/perfigo_cm_validate.jsp", ip, username, password);
-                    
-                    status = "On \"ufw\". Attempting authentication...";
-                    auth_started_userpass = username + ":" + password;
                 }
                 
                 sendMessageDelayed(obtainMessage(0), 1000);
