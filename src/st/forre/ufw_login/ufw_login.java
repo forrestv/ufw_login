@@ -37,6 +37,8 @@ import android.preference.PreferenceActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.preference.PreferenceManager;
+import android.widget.Button;
+import android.view.View;
 
 public class ufw_login extends Activity
 {
@@ -140,7 +142,7 @@ public class ufw_login extends Activity
                 String ip = Formatter.formatIpAddress(wi.getIpAddress());
                 
                 if(username.equals("") || password.equals("")) {
-                    status = "Username/password not yet set! Open the preferences window by pressing the menu button.";
+                    status = "Username/password not set! Press the \"Preferences\" button.";
                     auth_started_userpass = null;
                 } else if(!on_wifi_now) {
                     status = "Not on \"ufw\".";
@@ -173,7 +175,7 @@ public class ufw_login extends Activity
         public class LocalBinder extends Binder {
             String getStatus() {
                 WifiInfo wi = ((WifiManager)getSystemService(WIFI_SERVICE)).getConnectionInfo();
-                return "Network: " + wi.getSSID() + " Signal strength: " + (100 + wi.getRssi()) + "%\n\nStatus: " + status; // i know this isn't a percentage
+                return "Network: " + wi.getSSID() + "\nSignal strength: " + (100 + wi.getRssi()) + "%\n\nStatus: " + status; // i know this isn't a percentage
             }
         }
     }
@@ -200,22 +202,13 @@ public class ufw_login extends Activity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-    }
-    
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(Menu.NONE, 0, 0, "Preferences");
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case 0:
-                startActivity(new Intent(this, Preferences.class));
-                return true;
-        }
-        return false;
+        
+        final Button button = (Button) findViewById(R.id.button_id);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+               startActivity(new Intent(ufw_login.this, Preferences.class));
+            }
+        });
     }
     
     private boolean running = false;
