@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory 
+        android:title="GatorLink login"
+        android:key="first_category">
+        
+        <EditTextPreference
+            android:key="username"
+            android:title="Username"
+            android:summary="Gatorlink username"
+            android:dialogTitle="Gatorlink username"
+            android:dialogMessage="Provide your username" />
+    
+        <EditTextPreference
+            android:key="password"
+            android:title="Password"
+            android:summary="Gatorlink password"
+            android:dialogTitle="Gatorlink password"
+            android:dialogMessage="Provide your password"
+            android:inputType="textPassword" />
+    </PreferenceCategory>
+    
+    <PreferenceCategory 
+        android:title="Options"
+        android:key="second_category">
+        
+        <CheckBoxPreference 
+            android:key="display_notification"
+            android:summary="Display an icon in the notification area. If disabled, this program may be terminated in low-memory conditions."
+            android:title="Display notification icon" 
+            android:defaultValue="true" />
+    </PreferenceCategory>
+</PreferenceScreen>
