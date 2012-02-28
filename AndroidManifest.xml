@@ -15,7 +15,7 @@
             </intent-filter>
         </activity>
         <activity android:name="ufw_login$Preferences"
-                  android:label="ufw_login preferences"/>
+                  android:label="@string/pref_title"/>
         <service android:name="ufw_login$WatchService" android:label="ufw_login daemon">
         </service>
     </application>
