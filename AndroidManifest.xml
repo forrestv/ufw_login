@@ -3,7 +3,10 @@
       package="st.forre.ufw_login"
       android:versionCode="1"
       android:versionName="1.0">
-    <uses-sdk android:targetSdkVersion="11" />
+    <uses-sdk
+            android:minSdkVersion="1"
+            android:targetSdkVersion="11"
+            />
     <uses-feature android:name="android.hardware.wifi" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
