@@ -190,7 +190,7 @@ public class ufw_login extends Activity
                 ((TextView)ufw_login.this.findViewById(R.id.text)).setText("service not connected?");
             else
                 ((TextView)ufw_login.this.findViewById(R.id.text)).setText(mService.getStatus());
-            sendMessageDelayed(obtainMessage(0), 100);
+            sendMessageDelayed(obtainMessage(0), 250);
         }
     };
     
