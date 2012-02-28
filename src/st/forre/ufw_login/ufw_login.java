@@ -119,7 +119,7 @@ public class ufw_login extends Activity
             }
             
             protected void onPostExecute(String result) {
-                WatchService.this.status += "\n\n" + result;
+                WatchService.this.status += "\n" + result;
             }
         }
         
@@ -173,7 +173,7 @@ public class ufw_login extends Activity
         public class LocalBinder extends Binder {
             String getStatus() {
                 WifiInfo wi = ((WifiManager)getSystemService(WIFI_SERVICE)).getConnectionInfo();
-                return "SSID: " + wi.getSSID() + "\nRSSI: " + wi.getRssi() + "\nStatus: " + status;
+                return "Network: " + wi.getSSID() + " Signal strength: " + (100 + wi.getRssi()) + "%\n\nStatus: " + status; // i know this isn't a percentage
             }
         }
     }
