@@ -199,7 +199,7 @@ public class ufw_login extends Activity
         public class LocalBinder extends Binder {
             String getStatus() {
                 WifiInfo wi = ((WifiManager)getSystemService(WIFI_SERVICE)).getConnectionInfo();
-                return "Network: " + wi.getSSID() + "\nSignal strength: " + (100 + wi.getRssi()) + "%\n\nStatus: " + status; // i know this isn't a percentage
+                return "This behavior will continue in the background. This window only monitors it.\n\nNetwork: " + wi.getSSID() + "\nSignal strength: " + (100 + wi.getRssi()) + "%\n\nStatus: " + status; // i know this isn't a percentage
             }
         }
     }
