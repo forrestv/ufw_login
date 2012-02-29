@@ -8,15 +8,15 @@
         <EditTextPreference
             android:key="username"
             android:title="Username"
-            android:summary="Gatorlink username"
-            android:dialogTitle="Gatorlink username"
+            android:summary="GatorLink username"
+            android:dialogTitle="GatorLink username"
             android:dialogMessage="Provide your username" />
     
         <EditTextPreference
             android:key="password"
             android:title="Password"
-            android:summary="Gatorlink password"
-            android:dialogTitle="Gatorlink password"
+            android:summary="GatorLink password"
+            android:dialogTitle="GatorLink password"
             android:dialogMessage="Provide your password"
             android:inputType="textPassword" />
     </PreferenceCategory>
