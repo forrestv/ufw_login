@@ -70,11 +70,11 @@ public class ufw_login extends Activity
         private final IBinder mBinder = new LocalBinder();
         
         private class AuthTask extends AsyncTask<String, Void, String> {
-            private int kill_counter_at_start;
+            public int kill_counter_at_start;
             private String[] params;
             
             protected void onPreExecute() {
-                kill_counter_at_start = kill_counter;
+                //kill_counter_at_start = kill_counter;
             }
             
             protected String doInBackground(String... x) { // url, ip address, username, password
@@ -132,15 +132,18 @@ public class ufw_login extends Activity
             protected void onPostExecute(String result) {
                 if(kill_counter != kill_counter_at_start)
                     return;
-                WatchService.this.status += "\n" + result;
-                if(result.startsWith("Error")) {
-                    (new Handler()).postDelayed(new Runnable() {
-                      @Override
-                      public void run() {
-                        (new WatchService.AuthTask()).execute(params);
-                      }
-                    }, 1500);
-                }
+                if(!result.contains("certificate"))
+                    WatchService.this.status += "\n" + result;
+                if(!result.startsWith("Error"))
+                    kill_counter++;
+                (new Handler()).postDelayed(new Runnable() {
+                  @Override
+                  public void run() {
+                    AuthTask x = new WatchService.AuthTask();
+                    x.kill_counter_at_start = kill_counter_at_start;
+                    x.execute(params);
+                  }
+                }, 1500);
 
             }
         }
@@ -174,11 +177,11 @@ public class ufw_login extends Activity
                     status = "On \"ufw\". Attempting authentication...";
                     auth_started_userpass = username + ":" + password;
                     kill_counter += 1;
-                    
-                    (new WatchService.AuthTask()).execute("https://nac-serv-1.ns.ufl.edu/auth/perfigo_cm_validate.jsp", ip, username, password);
-                    (new WatchService.AuthTask()).execute("https://nac-serv-2.ns.ufl.edu/auth/perfigo_cm_validate.jsp", ip, username, password);
-                    (new WatchService.AuthTask()).execute("https://nac-serv-3.ns.ufl.edu/auth/perfigo_cm_validate.jsp", ip, username, password);
-                    (new WatchService.AuthTask()).execute("https://nac-serv-4.ns.ufl.edu/auth/perfigo_cm_validate.jsp", ip, username, password);
+                    for(int i = 1; i <= 4; i++) {
+                        AuthTask x = new WatchService.AuthTask();
+                        x.kill_counter_at_start = kill_counter;
+                        x.execute("https://nac-serv-" + i + ".ns.ufl.edu/auth/perfigo_cm_validate.jsp", ip, username, password);
+                    }
                 }
                 
                 sendMessageDelayed(obtainMessage(0), 1000);
